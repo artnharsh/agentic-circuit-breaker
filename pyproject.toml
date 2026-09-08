@@ -1,0 +1,8 @@
+[tool.uv.workspace]
+members = ["apps/engine"]
+
+[tool.uv]
+dev-dependencies = [
+    "pre-commit>=3.7",
+    "ruff>=0.4",
+]
