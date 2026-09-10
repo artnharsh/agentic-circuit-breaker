@@ -58,6 +58,7 @@ app.include_router(runs.router)
 # ── Startup event ─────────────────────────────────────────────────────────────
 @app.on_event("startup")
 async def on_startup() -> None:
+    from engine.storage.db import init_db
     logger.info("=" * 60)
     logger.info("Agentic Circuit Breaker — Engine v0.1.0")
     logger.info(f"  LLM Provider : {settings.llm_provider}")
@@ -66,3 +67,5 @@ async def on_startup() -> None:
     logger.info(f"  Corpus Dir   : {settings.corpus_dir}")
     logger.info("  API Docs     : http://localhost:8000/docs")
     logger.info("=" * 60)
+    await init_db()
+    logger.info("Database ready.")
