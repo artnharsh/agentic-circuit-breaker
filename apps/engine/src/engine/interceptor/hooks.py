@@ -28,6 +28,7 @@ from datetime import datetime, timezone
 from typing import Callable
 
 from engine.agentic_graph.state import AgentState
+from engine.heuristic_engine.state_machine import CircuitBreakerStateMachine
 from engine.interceptor.embeddings import embedding_service
 from engine.interceptor.token_counter import TokenUsage, extract_token_usage
 
@@ -76,6 +77,11 @@ class InterceptorContext:
     In-memory log entries accumulated synchronously during graph.invoke().
     Written to SQLite by flush_pending_logs() after graph.invoke() returns.
     """
+
+    state_machine: CircuitBreakerStateMachine = field(
+        default_factory=CircuitBreakerStateMachine
+    )
+    """The CLOSED/HALF_OPEN/OPEN finite state machine for this run."""
 
     embed_nodes: set[str] = field(default_factory=lambda: {"researcher"})
     """Which nodes get their output embedded (default: researcher only)."""

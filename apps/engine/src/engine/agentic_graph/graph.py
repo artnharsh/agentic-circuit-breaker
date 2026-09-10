@@ -1,30 +1,29 @@
 """
 LangGraph StateGraph definition — the Agentic Circuit Breaker pipeline.
 
-Graph topology:
-    START → researcher → critic ──SATISFIED──→ writer → END
-                           │
-                         RETRY
-                           │
-                           └──────────────→ researcher (loop)
+Graph topology (Day 3+, with circuit breaker):
+                         ┌─────────────────────┐
+    START → researcher → critic                 │
+                           │                    │
+                      SATISFIED             RETRY
+                           │                    │
+                         writer          breaker_check
+                           │              ↙       ↘
+                          END      CLOSED/HO    OPEN
+                                    ↙              ↘
+                               researcher         writer
+                                                   (forced summarization)
+                                                    │
+                                                   END
 
-The graph is compiled with `recursion_limit` from config (default: 6).
-When an adversarial query causes the Researcher→Critic loop to exceed this
-limit, LangGraph raises a `GraphRecursionError` — this is the baseline
-crash behavior that the circuit breaker (Day 3+) will prevent.
+Baseline mode (no interceptor_ctx):
+  - breaker_check is registered as a passthrough node → always routes to researcher
+  - Behavior identical to Day 1: Critic RETRY → Researcher loop until recursion_limit crash
 
-Day 2 addition: `build_graph(interceptor_ctx)` accepts an optional
-InterceptorContext. When provided, all nodes are wrapped with the
-Middleware Interceptor hooks before being registered in the graph.
-
-Usage:
-    # Without interceptor (Day 1 baseline)
-    graph = build_graph()
-
-    # With interceptor (Day 2+)
-    from engine.interceptor.hooks import InterceptorContext
-    ctx = InterceptorContext(log_store=log_store)
-    graph = build_graph(interceptor_ctx=ctx)
+Day 3 mode (with interceptor_ctx):
+  - breaker_check runs the full Heuristic Engine (cosine sim + FSM)
+  - When OPEN: circuit_breaker_triggered=True → Writer does forced summarization
+  - No crash, no wasted tokens, graceful partial answer
 """
 
 from __future__ import annotations
@@ -46,14 +45,28 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+def _passthrough_breaker_check(state: AgentState) -> dict:
+    """
+    Baseline (no interceptor) breaker check — always passes through.
+    Returns no state changes, letting should_continue route to researcher.
+    """
+    return {}
+
+
+def _passthrough_breaker_routing(state: AgentState) -> str:
+    """Baseline routing: always continue to researcher (no breaker logic)."""
+    return "researcher"
+
+
 def build_graph(interceptor_ctx: Optional["InterceptorContext"] = None):
     """
-    Build and compile the Researcher → Critic → Writer LangGraph pipeline.
+    Build and compile the pipeline StateGraph.
 
     Args:
-        interceptor_ctx: Optional InterceptorContext. When provided, all nodes
-            are wrapped with the Middleware Interceptor hooks (embedding, token
-            counting, SQLite logging). When None, nodes run unwrapped (baseline).
+        interceptor_ctx: Optional InterceptorContext. When provided:
+          - All nodes are wrapped with Middleware Interceptor hooks (Day 2)
+          - A real circuit breaker check node is registered (Day 3)
+          - When None: baseline mode (Day 1 behavior, no interceptor, no breaker)
 
     Returns:
         A compiled LangGraph that can be invoked with an AgentState dict.
@@ -61,33 +74,53 @@ def build_graph(interceptor_ctx: Optional["InterceptorContext"] = None):
     settings = get_settings()
     recursion_limit = settings.recursion_limit
 
-    mode = "intercepted" if interceptor_ctx else "baseline"
+    mode = "intercepted+breaker" if interceptor_ctx else "baseline"
     logger.info(f"Building graph | mode={mode} | recursion_limit={recursion_limit}")
 
-    # ── Optionally wrap nodes with interceptor hooks ───────────────────────
+    # ── Optionally wrap nodes with interceptor hooks ──────────────────────────
     if interceptor_ctx is not None:
         from engine.interceptor.hooks import wrap_node
+        from engine.agentic_graph.nodes.breaker_check import (
+            make_breaker_check_node, breaker_routing
+        )
+
         _researcher = wrap_node(researcher_node, "researcher", interceptor_ctx)
         _critic = wrap_node(critic_node, "critic", interceptor_ctx)
         _writer = wrap_node(writer_node, "writer", interceptor_ctx)
+        _breaker_check = make_breaker_check_node(interceptor_ctx)
+        _breaker_routing = breaker_routing
+
     else:
         _researcher = researcher_node
         _critic = critic_node
         _writer = writer_node
+        _breaker_check = _passthrough_breaker_check
+        _breaker_routing = _passthrough_breaker_routing
 
-    # ── Define the graph ───────────────────────────────────────────────────
+    # ── Define the graph ──────────────────────────────────────────────────────
     workflow = StateGraph(AgentState)
 
     workflow.add_node("researcher", _researcher)
     workflow.add_node("critic", _critic)
+    workflow.add_node("breaker_check", _breaker_check)
     workflow.add_node("writer", _writer)
 
+    # Edges
     workflow.add_edge(START, "researcher")
     workflow.add_edge("researcher", "critic")
 
     workflow.add_conditional_edges(
         "critic",
         should_continue,
+        {
+            "breaker_check": "breaker_check",
+            "writer": "writer",
+        },
+    )
+
+    workflow.add_conditional_edges(
+        "breaker_check",
+        _breaker_routing,
         {
             "researcher": "researcher",
             "writer": "writer",
@@ -101,7 +134,7 @@ def build_graph(interceptor_ctx: Optional["InterceptorContext"] = None):
     return compiled
 
 
-def get_graph():
+def get_baseline_graph():
     """Return a baseline (non-intercepted) compiled graph singleton."""
     global _baseline_graph
     if _baseline_graph is None:

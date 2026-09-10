@@ -96,12 +96,16 @@ def should_continue(state: AgentState) -> str:
     LangGraph conditional edge function.
 
     Returns:
-      "researcher"  → if the Critic said RETRY (loop continues)
-      "writer"      → if the Critic said SATISFIED (proceed to writing)
+      "breaker_check" → if the Critic said RETRY (goes to circuit breaker check first)
+      "writer"        → if the Critic said SATISFIED (proceed to writing directly)
+
+    Day 3 change: RETRY now routes to breaker_check (not directly to researcher).
+    The breaker_check node then decides: researcher (CLOSED/HALF_OPEN) or writer (OPEN).
+    In baseline mode (no interceptor), breaker_check is a passthrough → researcher.
     """
     critique = state.get("critique", "RETRY")
     if "SATISFIED" in critique.upper():
         logger.info("[Critic] → routing to Writer")
         return "writer"
-    logger.info("[Critic] → routing back to Researcher (RETRY)")
-    return "researcher"
+    logger.info("[Critic] → routing to BreakerCheck (RETRY)")
+    return "breaker_check"

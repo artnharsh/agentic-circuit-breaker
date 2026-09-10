@@ -36,11 +36,17 @@ _ADVERSARIAL_SIGNALS: tuple[str, ...] = (
     "per manufacturer per quarter",
     "proprietary r&d",
     "patent filing counts",
-    "gdp impact coefficients",
+    "gdp impact coefficient",       # singular
+    "gdp impact coefficients",      # plural
     "statistical significance values",
     "confidence intervals for each",
     "precise gdp",
     "per quarter from q1",
+    "monthly granularity",
+    "every country in the world",
+    "every agricultural subsidy",
+    "exact number",
+    "exact figure",
 )
 
 # Topics the corpus CAN answer (general knowledge docs are present)
@@ -109,21 +115,29 @@ class MockChatModel(BaseChatModel):
     )
 
     # ── Researcher: failure responses (adversarial — corpus lacks specific data) ──
+    # IMPORTANT: These responses must be semantically near-identical so that the
+    # cosine similarity between consecutive embeddings rises above the HALF_OPEN
+    # threshold (0.85). The corpus does not contain the requested specific data.
+    # Slight wording variation is intentional to prevent exact string matching
+    # while keeping the semantic meaning (and thus the embedding) nearly identical.
     _researcher_failure_responses: list[str] = [
         (
-            "Based on the corpus, I found general information about the topic "
-            "but could not locate specific quantitative data to fully answer the query. "
-            "The documents mention broad trends but lack precise figures."
+            "The corpus does not contain the specific quantitative data needed "
+            "to answer this query. After thorough retrieval, the available documents "
+            "lack the exact figures and granular statistics requested. "
+            "The corpus cannot provide this information."
         ),
         (
-            "My search of the available documents returned partial results. "
-            "The corpus contains background context but the exact numbers "
-            "requested are not present in the retrieved documents."
+            "The corpus does not contain the specific quantitative data required "
+            "to answer this query. After thorough retrieval, the available documents "
+            "lack the exact figures and granular statistics requested. "
+            "The corpus cannot supply this information."
         ),
         (
-            "I reviewed the corpus and retrieved relevant sections, however "
-            "the specific data points needed to answer this question definitively "
-            "are not available in the current document set."
+            "The corpus does not contain the specific quantitative data necessary "
+            "to answer this query. After thorough retrieval, the available documents "
+            "lack the exact figures and granular statistics requested. "
+            "The corpus cannot provide these details."
         ),
     ]
     _failure_index: int = 0  # cycles through failure responses deterministically
@@ -222,6 +236,10 @@ class MockChatModel(BaseChatModel):
         """
         # Failure phrases that the researcher emits for adversarial queries
         failure_phrases = (
+            "corpus does not contain the specific quantitative data",
+            "lack the exact figures",
+            "corpus cannot provide",
+            "corpus cannot supply",
             "could not locate specific",
             "exact numbers requested are not present",
             "specific data points needed",
