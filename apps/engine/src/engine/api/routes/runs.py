@@ -122,7 +122,7 @@ async def create_run(request: RunRequest) -> RunResponse:
         await log_store.create_run(query=request.query)
 
         ctx = InterceptorContext(run_id=run_id)
-        graph = build_graph(interceptor_ctx=ctx)
+        graph = build_graph(interceptor_ctx=ctx, use_circuit_breaker=request.use_circuit_breaker)
 
         # ── Run the graph ──────────────────────────────────────────────────
         try:

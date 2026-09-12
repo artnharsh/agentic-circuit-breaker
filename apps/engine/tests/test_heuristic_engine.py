@@ -163,7 +163,7 @@ async def test_adversarial_query_triggers_circuit_breaker():
         log_store = LogStore(db=db, run_id=run_id)
         await log_store.create_run(query="adversarial")
         ctx = InterceptorContext(run_id=run_id)
-        graph = build_graph(interceptor_ctx=ctx)
+        graph = build_graph(interceptor_ctx=ctx, use_circuit_breaker=True)
 
         state: AgentState = {
             "query": (
@@ -217,7 +217,7 @@ async def test_normal_query_does_not_trigger_breaker():
         log_store = LogStore(db=db, run_id=run_id)
         await log_store.create_run(query="normal")
         ctx = InterceptorContext(run_id=run_id)
-        graph = build_graph(interceptor_ctx=ctx)
+        graph = build_graph(interceptor_ctx=ctx, use_circuit_breaker=True)
 
         state: AgentState = {
             "query": "What is solar energy and how do photovoltaic panels work?",

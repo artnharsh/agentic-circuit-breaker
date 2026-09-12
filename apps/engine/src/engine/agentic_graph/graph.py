@@ -58,15 +58,15 @@ def _passthrough_breaker_routing(state: AgentState) -> str:
     return "researcher"
 
 
-def build_graph(interceptor_ctx: Optional["InterceptorContext"] = None):
+def build_graph(interceptor_ctx: Optional["InterceptorContext"] = None, use_circuit_breaker: bool = False):
     """
     Build and compile the pipeline StateGraph.
 
     Args:
         interceptor_ctx: Optional InterceptorContext. When provided:
           - All nodes are wrapped with Middleware Interceptor hooks (Day 2)
-          - A real circuit breaker check node is registered (Day 3)
-          - When None: baseline mode (Day 1 behavior, no interceptor, no breaker)
+        use_circuit_breaker: When True, a real circuit breaker check node is registered (Day 3+).
+          When False, a passthrough node is used (Day 1 baseline behavior).
 
     Returns:
         A compiled LangGraph that can be invoked with an AgentState dict.
@@ -87,8 +87,13 @@ def build_graph(interceptor_ctx: Optional["InterceptorContext"] = None):
         _researcher = wrap_node(researcher_node, "researcher", interceptor_ctx)
         _critic = wrap_node(critic_node, "critic", interceptor_ctx)
         _writer = wrap_node(writer_node, "writer", interceptor_ctx)
-        _breaker_check = make_breaker_check_node(interceptor_ctx)
-        _breaker_routing = breaker_routing
+        
+        if use_circuit_breaker:
+            _breaker_check = make_breaker_check_node(interceptor_ctx)
+            _breaker_routing = breaker_routing
+        else:
+            _breaker_check = _passthrough_breaker_check
+            _breaker_routing = _passthrough_breaker_routing
 
     else:
         _researcher = researcher_node

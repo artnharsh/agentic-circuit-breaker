@@ -124,7 +124,7 @@ async def test_intercepted_run_writes_db_rows():
 
         # Build intercepted graph (no log_store needed in context anymore)
         ctx = InterceptorContext(run_id=run_id)
-        graph = build_graph(interceptor_ctx=ctx)
+        graph = build_graph(interceptor_ctx=ctx, use_circuit_breaker=True)
 
         state: AgentState = {
             "query": "What is solar energy and how do photovoltaic panels work?",

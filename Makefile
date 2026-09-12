@@ -35,10 +35,17 @@ clean: ## Remove caches and build artifacts
 	find . -name "*.db" -delete 2>/dev/null || true
 
 demo-crash: ## Run the adversarial query to reproduce the GraphRecursionError
-	@echo "🔥 Running adversarial query — expect a crash (baseline behaviour)..."
+	@echo " Running adversarial query — expect a crash (baseline behaviour)..."
 	curl -s -X POST http://localhost:8000/runs \
 	  -H "Content-Type: application/json" \
 	  -d '{"query": "What is the exact CO2 reduction achieved per country per year from 2015 to 2025?"}' \
+	  | python3 -m json.tool
+
+demo-protected: ## Run the adversarial query with circuit breaker enabled
+	@echo " Running adversarial query — expect circuit breaker to trigger and save the pipeline..."
+	curl -s -X POST http://localhost:8000/runs \
+	  -H "Content-Type: application/json" \
+	  -d '{"query": "What is the exact CO2 reduction achieved per country per year from 2015 to 2025?", "use_circuit_breaker": true}' \
 	  | python3 -m json.tool
 
 demo-normal: ## Run a normal query — should complete successfully

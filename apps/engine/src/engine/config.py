@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     anthropic_model: str = Field(default="claude-haiku-4-5", alias="ANTHROPIC_MODEL")
 
     # ── Pipeline ─────────────────────────────────────────────────────────────
-    recursion_limit: int = Field(default=6, alias="RECURSION_LIMIT")
+    recursion_limit: int = Field(default=15, alias="RECURSION_LIMIT")
 
     # ── Circuit Breaker Thresholds ────────────────────────────────────────────
     similarity_half_open: float = Field(default=0.85, alias="SIMILARITY_HALF_OPEN")
