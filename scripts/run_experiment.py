@@ -98,7 +98,11 @@ async def main_async(args: argparse.Namespace) -> None:
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
     out_dir = Path("data")
     out_dir.mkdir(parents=True, exist_ok=True)
-    out_path = Path(args.output) if args.output else out_dir / f"experiment_results_{timestamp}.jsonl"
+    out_path = (
+        Path(args.output)
+        if args.output
+        else out_dir / f"experiment_results_{timestamp}.jsonl"
+    )
     latest_path = out_dir / "experiment_results_latest.jsonl"
 
     results: list[dict[str, Any]] = []
@@ -170,25 +174,37 @@ async def main_async(args: argparse.Namespace) -> None:
     with open(latest_path, "w", encoding="utf-8") as f:
         f.writelines(json.dumps(r) + "\n" for r in results)
 
-    logger.info(f"\nExperiment complete. Saved {len(results)} rows to {out_path} and {latest_path}")
+    logger.info(
+        f"\nExperiment complete. Saved {len(results)} rows to {out_path} and {latest_path}"
+    )
 
     # Print summary table
     print("\n" + "=" * 90)
     print("  EXPERIMENT SUMMARY TABLE")
     print("=" * 90)
-    print(f"{'#':<3} | {'Type':<10} | {'Baseline (Tokens/Stat)':<24} | {'Protected (Tokens/Stat)':<26} | {'Saved Tokens (%)':<18}")
+    print(
+        f"{'#':<3} | {'Type':<10} | {'Baseline (Tokens/Stat)':<24} | {'Protected (Tokens/Stat)':<26} | {'Saved Tokens (%)':<18}"
+    )
     print("-" * 90)
     for r in results:
         b_str = f"{r['baseline']['tokens_used']:,} ({r['baseline']['status']})"
-        t_src = f" [by {r['treatment']['circuit_breaker_source']}]" if r['treatment']['circuit_breaker_source'] else ""
+        t_src = (
+            f" [by {r['treatment']['circuit_breaker_source']}]"
+            if r["treatment"]["circuit_breaker_source"]
+            else ""
+        )
         t_str = f"{r['treatment']['tokens_used']:,} ({r['treatment']['status']}){t_src}"
         sav_str = f"{r['token_savings']:,} ({r['token_savings_pct']:.1f}%)"
-        print(f"{r['id']:<3} | {r['label']:<10} | {b_str:<24} | {t_str:<26} | {sav_str:<18}")
+        print(
+            f"{r['id']:<3} | {r['label']:<10} | {b_str:<24} | {t_str:<26} | {sav_str:<18}"
+        )
     print("=" * 90)
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Run Agentic Circuit Breaker experiment.")
+    parser = argparse.ArgumentParser(
+        description="Run Agentic Circuit Breaker experiment."
+    )
     parser.add_argument(
         "--queries",
         type=str,

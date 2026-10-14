@@ -71,10 +71,7 @@ def critic_node(state: AgentState) -> dict:
     verdict = _parse_verdict(critique_text)
     new_iteration = iteration + 1
 
-    logger.info(
-        f"[Critic] Iteration {iteration} → {new_iteration} | "
-        f"Verdict: {verdict}"
-    )
+    logger.info(f"[Critic] Iteration {iteration} → {new_iteration} | Verdict: {verdict}")
 
     return {
         "critique": critique_text,

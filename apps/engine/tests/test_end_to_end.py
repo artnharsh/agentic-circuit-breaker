@@ -60,9 +60,15 @@ def test_graph_state_has_required_fields() -> None:
     """AgentState TypedDict must have all required fields."""
     state = _make_initial_state("test query")
     required_fields = [
-        "query", "corpus_docs", "research_notes", "critique",
-        "draft", "final_output", "iteration_count",
-        "circuit_breaker_triggered", "messages",
+        "query",
+        "corpus_docs",
+        "research_notes",
+        "critique",
+        "draft",
+        "final_output",
+        "iteration_count",
+        "circuit_breaker_triggered",
+        "messages",
     ]
     for field in required_fields:
         assert field in state, f"Missing required state field: {field}"

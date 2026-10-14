@@ -87,18 +87,14 @@ class BreakerConfig:
                 f"half_open_threshold must be in [0, 1], got {self.half_open_threshold}"
             )
         if not 0.0 <= self.open_threshold <= 1.0:
-            raise ValueError(
-                f"open_threshold must be in [0, 1], got {self.open_threshold}"
-            )
+            raise ValueError(f"open_threshold must be in [0, 1], got {self.open_threshold}")
         if self.half_open_threshold >= self.open_threshold:
             raise ValueError(
                 f"half_open_threshold ({self.half_open_threshold}) must be < "
                 f"open_threshold ({self.open_threshold})"
             )
         if self.similarity_window < 1:
-            raise ValueError(
-                f"similarity_window must be >= 1, got {self.similarity_window}"
-            )
+            raise ValueError(f"similarity_window must be >= 1, got {self.similarity_window}")
         if isinstance(self.on_open, str) and self.on_open not in ("flag", "abort"):
             raise ValueError(
                 f"on_open must be 'flag', 'abort', or a callable, got {self.on_open!r}"

@@ -58,7 +58,9 @@ def _passthrough_breaker_routing(state: AgentState) -> str:
     return "researcher"
 
 
-def build_graph(interceptor_ctx: InterceptorContext | None = None, use_circuit_breaker: bool = False):
+def build_graph(
+    interceptor_ctx: InterceptorContext | None = None, use_circuit_breaker: bool = False
+):
     """
     Build and compile the pipeline StateGraph.
 
@@ -88,7 +90,7 @@ def build_graph(interceptor_ctx: InterceptorContext | None = None, use_circuit_b
         _researcher = wrap_node(researcher_node, "researcher", interceptor_ctx)
         _critic = wrap_node(critic_node, "critic", interceptor_ctx)
         _writer = wrap_node(writer_node, "writer", interceptor_ctx)
-        
+
         if use_circuit_breaker:
             _breaker_check = make_breaker_check_node(interceptor_ctx)
             _breaker_routing = breaker_routing

@@ -129,9 +129,7 @@ class CircuitBreaker:
 
         # Check watch_nodes filter
         if self._config.watch_nodes is not None and node_name not in self._config.watch_nodes:
-            logger.debug(
-                f"[CircuitBreaker] Skipping {node_name} — not in watch_nodes"
-            )
+            logger.debug(f"[CircuitBreaker] Skipping {node_name} — not in watch_nodes")
             return node_fn  # return unwrapped
 
         # Start timing on first watch() call
@@ -191,7 +189,10 @@ class CircuitBreaker:
             for node_name, pregel_node in graph.nodes.items():
                 if node_name.startswith("__"):
                     continue
-                if self._config.watch_nodes is not None and node_name not in self._config.watch_nodes:
+                if (
+                    self._config.watch_nodes is not None
+                    and node_name not in self._config.watch_nodes
+                ):
                     continue
                 if hasattr(pregel_node, "bound"):
                     if hasattr(pregel_node.bound, "func"):
@@ -207,7 +208,10 @@ class CircuitBreaker:
             for node_name, spec in list(graph.nodes.items()):
                 if node_name.startswith("__"):
                     continue
-                if self._config.watch_nodes is not None and node_name not in self._config.watch_nodes:
+                if (
+                    self._config.watch_nodes is not None
+                    and node_name not in self._config.watch_nodes
+                ):
                     continue
                 runnable = getattr(spec, "runnable", None)
                 if runnable is not None and hasattr(runnable, "func"):

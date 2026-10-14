@@ -148,8 +148,7 @@ class NodeInterceptor:
         # ── Pre-check: max iterations hard cap ──────────────────────────────
         if config.max_iterations and tracker.call_count >= config.max_iterations:
             logger.warning(
-                f"[Interceptor] {self._node_name} hit max_iterations cap "
-                f"({config.max_iterations})"
+                f"[Interceptor] {self._node_name} hit max_iterations cap ({config.max_iterations})"
             )
             self._fire_breaker(iteration=tracker.call_count, similarity=1.0)
             return self._make_flag_result(self._node_name)
@@ -169,9 +168,7 @@ class NodeInterceptor:
                     f"embedded {len(text)} chars → dim={len(embedding)}"
                 )
             except Exception as e:  # noqa: BLE001
-                logger.warning(
-                    f"[Interceptor] Embedding failed for {self._node_name}: {e}"
-                )
+                logger.warning(f"[Interceptor] Embedding failed for {self._node_name}: {e}")
         else:
             logger.debug(
                 f"[Interceptor] {self._node_name} | call {tracker.call_count} | "
@@ -243,9 +240,7 @@ class NodeInterceptor:
             f"Similarity: {similarity:.4f}"
         )
 
-    def _apply_intervention(
-        self, result: dict, state: dict, similarity: float
-    ) -> dict:
+    def _apply_intervention(self, result: dict, state: dict, similarity: float) -> dict:
         """Apply the configured intervention strategy."""
         on_open = self._config.on_open
 

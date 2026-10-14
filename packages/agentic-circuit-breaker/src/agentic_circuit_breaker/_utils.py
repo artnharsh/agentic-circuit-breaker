@@ -30,9 +30,19 @@ def default_text_extractor(node_name: str, result: dict, state: dict) -> str:
     """
     # Priority 1: Common field names for agent outputs
     common_fields = (
-        "output", "content", "text", "response", "answer",
-        "research_notes", "critique", "final_output", "draft",
-        "summary", "result", "reasoning", "analysis",
+        "output",
+        "content",
+        "text",
+        "response",
+        "answer",
+        "research_notes",
+        "critique",
+        "final_output",
+        "draft",
+        "summary",
+        "result",
+        "reasoning",
+        "analysis",
     )
     for field_name in common_fields:
         value = result.get(field_name)

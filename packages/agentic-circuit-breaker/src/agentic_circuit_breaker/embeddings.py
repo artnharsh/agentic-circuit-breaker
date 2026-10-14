@@ -38,7 +38,9 @@ def _load_sentence_transformer(model_name: str):
     model = SentenceTransformer(model_name)
 
     # Get embedding dimension
-    dim_fn = getattr(model, "get_embedding_dimension", None) or getattr(model, "get_sentence_embedding_dimension", None)
+    dim_fn = getattr(model, "get_embedding_dimension", None) or getattr(
+        model, "get_sentence_embedding_dimension", None
+    )
     dim = dim_fn() if callable(dim_fn) else "unknown"
     logger.info(f"Embedding model loaded. Output dim: {dim}")
 
@@ -110,9 +112,7 @@ class EmbeddingService:
             return [self._custom_fn(t) for t in texts]
 
         model = _load_sentence_transformer(self._model_name)
-        vecs: np.ndarray = model.encode(
-            texts, normalize_embeddings=True, batch_size=32
-        )
+        vecs: np.ndarray = model.encode(texts, normalize_embeddings=True, batch_size=32)
         return vecs.tolist()
 
     def _get_dim(self) -> int:
@@ -122,5 +122,7 @@ class EmbeddingService:
             return 384  # safe default
 
         model = _load_sentence_transformer(self._model_name)
-        dim_fn = getattr(model, "get_embedding_dimension", None) or getattr(model, "get_sentence_embedding_dimension", None)
+        dim_fn = getattr(model, "get_embedding_dimension", None) or getattr(
+            model, "get_sentence_embedding_dimension", None
+        )
         return dim_fn() if callable(dim_fn) else 384

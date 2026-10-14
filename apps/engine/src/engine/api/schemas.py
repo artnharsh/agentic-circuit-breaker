@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field
 
 class RunStatus(str, Enum):
     """Possible outcomes of a pipeline run."""
+
     COMPLETED = "completed"
     CRASHED = "crashed"
     BREAKER_TRIGGERED = "breaker_triggered"  # Day 4+
@@ -18,6 +19,7 @@ class RunStatus(str, Enum):
 
 class RunRequest(BaseModel):
     """POST /runs — request body."""
+
     query: str = Field(
         ...,
         min_length=1,
@@ -37,6 +39,7 @@ class RunRequest(BaseModel):
 
 class RunResponse(BaseModel):
     """POST /runs — response body."""
+
     run_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     status: RunStatus
     query: str

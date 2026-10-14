@@ -83,9 +83,7 @@ class HalfOpenVerifier:
         recursion_progress = min(iteration / max(self._max_iterations, 1), 1.0)
 
         # Signal 2: Token budget consumption rate
-        token_progress = min(
-            total_tokens_used / max(estimated_token_budget, 1), 1.0
-        )
+        token_progress = min(total_tokens_used / max(estimated_token_budget, 1), 1.0)
 
         # Signal 3: How high is similarity above the HALF_OPEN threshold?
         threshold_range = max(self._open - self._half_open, 0.01)

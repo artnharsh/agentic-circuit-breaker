@@ -105,8 +105,7 @@ class CircuitBreakerStateMachine:
             )
         else:
             logger.debug(
-                f"[StateMachine] {self._state.value} (unchanged) "
-                f"| similarity={similarity:.4f}"
+                f"[StateMachine] {self._state.value} (unchanged) | similarity={similarity:.4f}"
             )
 
         return self._state

@@ -108,7 +108,7 @@ def make_breaker_check_node(ctx: InterceptorContext) -> Callable[[AgentState], d
 
         # ── HALF_OPEN: run secondary verifier ──────────────────────────────
         if new_breaker_state == BreakerState.HALF_OPEN:
-            verifier_result = _verifier.verify(
+            _ = _verifier.verify(
                 similarity=similarity,
                 iteration=iteration,
                 total_tokens_used=ctx.token_accumulator.total_tokens,

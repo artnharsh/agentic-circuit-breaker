@@ -59,6 +59,7 @@ app.include_router(runs.router)
 @app.on_event("startup")
 async def on_startup() -> None:
     from engine.storage.db import init_db
+
     logger.info("=" * 60)
     logger.info("Agentic Circuit Breaker — Engine v0.1.0")
     logger.info(f"  LLM Provider : {settings.llm_provider}")

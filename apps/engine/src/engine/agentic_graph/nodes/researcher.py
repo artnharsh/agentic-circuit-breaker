@@ -77,10 +77,7 @@ def researcher_node(state: AgentState) -> dict:
     response = llm.invoke(messages)
     research_notes = str(response.content)
 
-    logger.info(
-        f"[Researcher] Iteration {iteration} | "
-        f"Notes length: {len(research_notes)} chars"
-    )
+    logger.info(f"[Researcher] Iteration {iteration} | Notes length: {len(research_notes)} chars")
 
     return {
         "research_notes": research_notes,
@@ -101,9 +98,32 @@ def _retrieve_relevant_docs(query: str, corpus_docs: list[str]) -> list[str]:
     query_words = set(query.lower().split())
     # Remove common stop words for better signal
     stop_words = {
-        "the", "a", "an", "is", "are", "was", "were", "be", "been",
-        "what", "how", "why", "when", "where", "which", "who", "and",
-        "or", "but", "in", "on", "at", "to", "for", "of", "with",
+        "the",
+        "a",
+        "an",
+        "is",
+        "are",
+        "was",
+        "were",
+        "be",
+        "been",
+        "what",
+        "how",
+        "why",
+        "when",
+        "where",
+        "which",
+        "who",
+        "and",
+        "or",
+        "but",
+        "in",
+        "on",
+        "at",
+        "to",
+        "for",
+        "of",
+        "with",
     }
     query_words -= stop_words
 

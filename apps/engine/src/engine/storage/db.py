@@ -58,7 +58,7 @@ def get_engine():
         url = _get_db_url()
         _engine = create_async_engine(
             url,
-            echo=False,          # set True to log every SQL statement
+            echo=False,  # set True to log every SQL statement
             future=True,
             pool_pre_ping=True,
         )

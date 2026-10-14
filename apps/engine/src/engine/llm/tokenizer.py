@@ -46,6 +46,7 @@ def _count_openai_tokens(text: str, model: str) -> int:
 @lru_cache(maxsize=4)
 def _get_tiktoken_encoder(model: str):  # type: ignore[return]
     import tiktoken
+
     try:
         return tiktoken.encoding_for_model(model)
     except KeyError:
@@ -59,6 +60,7 @@ def _count_anthropic_tokens(text: str) -> int:
     """
     try:
         import anthropic
+
         settings = get_settings()
         client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
         response = client.messages.count_tokens(

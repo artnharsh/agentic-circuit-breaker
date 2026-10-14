@@ -44,6 +44,7 @@ class PendingLog:
     In-memory snapshot of a single node call, accumulated synchronously
     during graph.invoke() and written to SQLite in one async batch afterward.
     """
+
     run_id: str
     iteration: int
     node: str
@@ -78,9 +79,7 @@ class InterceptorContext:
     Written to SQLite by flush_pending_logs() after graph.invoke() returns.
     """
 
-    state_machine: CircuitBreakerStateMachine = field(
-        default_factory=CircuitBreakerStateMachine
-    )
+    state_machine: CircuitBreakerStateMachine = field(default_factory=CircuitBreakerStateMachine)
     """The CLOSED/HALF_OPEN/OPEN finite state machine for this run."""
 
     embed_nodes: set[str] = field(default_factory=lambda: {"researcher"})
@@ -127,26 +126,27 @@ def wrap_node(node_fn: NodeFn, node_name: str, ctx: InterceptorContext) -> NodeF
             try:
                 embedding = embedding_service.embed(output_text)
                 logger.debug(
-                    f"[Interceptor] {node_name} | iter {iteration} | "
-                    f"embedding dim={len(embedding)}"
+                    f"[Interceptor] {node_name} | iter {iteration} | embedding dim={len(embedding)}"
                 )
             except Exception as e:
                 logger.warning(f"[Interceptor] Embedding failed for {node_name}: {e}")
 
         # ── Accumulate in-memory log entry (no DB I/O here) ─────────────────
         input_text = _get_input_text(node_name, state)
-        ctx.pending_logs.append(PendingLog(
-            run_id=ctx.run_id,
-            iteration=iteration,
-            node=node_name,
-            embedding=embedding,
-            prompt_tokens=usage.prompt_tokens,
-            completion_tokens=usage.completion_tokens,
-            breaker_state=None,  # Populated from Day 3
-            input_text=input_text[:500],
-            output_text=output_text[:500],
-            timestamp=datetime.now(UTC),
-        ))
+        ctx.pending_logs.append(
+            PendingLog(
+                run_id=ctx.run_id,
+                iteration=iteration,
+                node=node_name,
+                embedding=embedding,
+                prompt_tokens=usage.prompt_tokens,
+                completion_tokens=usage.completion_tokens,
+                breaker_state=None,  # Populated from Day 3
+                input_text=input_text[:500],
+                output_text=output_text[:500],
+                timestamp=datetime.now(UTC),
+            )
+        )
 
         logger.info(
             f"[Interceptor] {node_name} | iter {iteration} | "
@@ -202,6 +202,7 @@ async def flush_pending_logs(ctx: InterceptorContext, db) -> None:
 
 
 # ── Internal helpers ───────────────────────────────────────────────────────────
+
 
 def _extract_usage_from_result(result: dict) -> TokenUsage:
     """Extract token usage from the last AIMessage in the node's result."""

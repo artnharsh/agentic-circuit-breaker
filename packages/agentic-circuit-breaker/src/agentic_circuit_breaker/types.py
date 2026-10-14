@@ -143,10 +143,7 @@ class RunReport:
     @property
     def thrashing_nodes(self) -> list[str]:
         """List of node names whose FSM reached OPEN or HALF_OPEN."""
-        return [
-            name for name, report in self.node_reports.items()
-            if report.is_thrashing
-        ]
+        return [name for name, report in self.node_reports.items() if report.is_thrashing]
 
     @property
     def similarity_timeline(self) -> list[SimilarityEvent]:
@@ -166,9 +163,7 @@ class RunReport:
         ]
 
         if self.breaker_triggered:
-            lines.append(
-                f"  Status:       TRIGGERED at iteration {self.trigger_iteration}"
-            )
+            lines.append(f"  Status:       TRIGGERED at iteration {self.trigger_iteration}")
             lines.append(f"  Triggered by: {self.triggered_by}")
         else:
             lines.append("  Status:       NOT TRIGGERED (clean run)")
@@ -196,12 +191,8 @@ class RunReport:
             else:
                 lines.append("    (no similarity data — not enough calls)")
 
-            lines.append(
-                f"    Max similarity: {report.max_similarity:.4f}"
-            )
-            lines.append(
-                f"    Tokens consumed: {report.token_usage.total_tokens:,}"
-            )
+            lines.append(f"    Max similarity: {report.max_similarity:.4f}")
+            lines.append(f"    Tokens consumed: {report.token_usage.total_tokens:,}")
             lines.append("")
 
         lines.append("══════════════════════════════════════════════════════")

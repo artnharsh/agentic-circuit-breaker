@@ -139,10 +139,7 @@ async def create_run(request: RunRequest) -> RunResponse:
             breaker_triggered = final_state.get("circuit_breaker_triggered", False)
             breaker_source = final_state.get("circuit_breaker_source")
 
-            status = (
-                RunStatus.BREAKER_TRIGGERED if breaker_triggered
-                else RunStatus.COMPLETED
-            )
+            status = RunStatus.BREAKER_TRIGGERED if breaker_triggered else RunStatus.COMPLETED
 
             await log_store.finalize_run(
                 status=status.value,

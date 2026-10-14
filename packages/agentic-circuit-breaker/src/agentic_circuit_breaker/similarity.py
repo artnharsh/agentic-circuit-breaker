@@ -33,9 +33,7 @@ def compute_cosine_similarity(vec_a: list[float], vec_b: list[float]) -> float:
     if not vec_a or not vec_b:
         raise ValueError("Cannot compute similarity of empty vectors.")
     if len(vec_a) != len(vec_b):
-        raise ValueError(
-            f"Vector dimension mismatch: {len(vec_a)} vs {len(vec_b)}."
-        )
+        raise ValueError(f"Vector dimension mismatch: {len(vec_a)} vs {len(vec_b)}.")
 
     a = np.array(vec_a, dtype=np.float64)
     b = np.array(vec_b, dtype=np.float64)
@@ -50,9 +48,7 @@ def compute_cosine_similarity(vec_a: list[float], vec_b: list[float]) -> float:
     return float(np.dot(a, b) / (norm_a * norm_b))
 
 
-def get_recent_similarity(
-    embeddings: list[list[float]], window: int = 2
-) -> float | None:
+def get_recent_similarity(embeddings: list[list[float]], window: int = 2) -> float | None:
     """
     Compute similarity between the most recent embedding and the one
     `window` steps back.

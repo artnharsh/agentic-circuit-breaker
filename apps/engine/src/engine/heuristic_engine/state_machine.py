@@ -25,7 +25,11 @@ class CircuitBreakerStateMachine(BaseStateMachine):
         open_threshold: float | None = None,
     ) -> None:
         settings = get_settings()
-        ho = half_open_threshold if half_open_threshold is not None else settings.similarity_half_open
+        ho = (
+            half_open_threshold
+            if half_open_threshold is not None
+            else settings.similarity_half_open
+        )
         op = open_threshold if open_threshold is not None else settings.similarity_open
         super().__init__(half_open_threshold=ho, open_threshold=op)
 

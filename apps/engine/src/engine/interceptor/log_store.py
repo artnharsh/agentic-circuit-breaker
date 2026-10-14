@@ -117,9 +117,7 @@ class LogStore:
         error: str | None = None,
     ) -> None:
         """Update the Run row when the pipeline completes or crashes."""
-        result = await self._db.execute(
-            select(Run).where(Run.id == self._run_id)
-        )
+        result = await self._db.execute(select(Run).where(Run.id == self._run_id))
         run = result.scalar_one_or_none()
         if run is None:
             logger.warning(f"[LogStore] Run {self._run_id} not found for finalize.")

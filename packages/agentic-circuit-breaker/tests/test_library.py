@@ -21,6 +21,7 @@ from agentic_circuit_breaker import (
 
 # ── Cosine Similarity Tests ───────────────────────────────────────────────────
 
+
 class TestSimilarity:
     def test_identical_vectors(self):
         v = [1.0, 2.0, 3.0]
@@ -62,6 +63,7 @@ class TestSimilarity:
 
 # ── State Machine Tests ───────────────────────────────────────────────────────
 
+
 class TestStateMachine:
     def test_state_machine_transitions(self):
         fsm = CircuitBreakerStateMachine(half_open_threshold=0.85, open_threshold=0.95)
@@ -93,6 +95,7 @@ class TestStateMachine:
 
 # ── Config Validation Tests ───────────────────────────────────────────────────
 
+
 class TestBreakerConfig:
     def test_valid_config(self):
         cfg = BreakerConfig(half_open_threshold=0.80, open_threshold=0.90)
@@ -112,6 +115,7 @@ class TestBreakerConfig:
 
 # ── CircuitBreaker Execution & Per-Node Observability Tests ────────────────────
 
+
 class TestCircuitBreakerObservability:
     def test_per_node_thrashing_localization(self):
         """
@@ -120,6 +124,7 @@ class TestCircuitBreakerObservability:
           - critic produces varied outputs (not thrashing)
         Verify that the breaker identifies 'researcher' as the culprit.
         """
+
         # Custom deterministic embedder for fast, reproducible testing
         def mock_embed(text: str) -> list[float]:
             if "repetitive research" in text:
@@ -192,6 +197,7 @@ class TestCircuitBreakerObservability:
 
 # ── LangGraph Integration Tests ───────────────────────────────────────────────
 
+
 class AgentState(TypedDict):
     notes: str
     feedback: str
@@ -202,6 +208,7 @@ class AgentState(TypedDict):
 class TestLangGraphIntegration:
     def test_wrap_langgraph_workflow(self):
         """Test wrapping a LangGraph StateGraph and intercepting thrashing."""
+
         def mock_embed(text: str) -> list[float]:
             if "stuck" in text:
                 return [1.0, 0.0]
@@ -238,17 +245,21 @@ class TestLangGraphIntegration:
                 return END
             return "researcher"
 
-        workflow.add_conditional_edges("critic", route_critic, {"researcher": "researcher", END: END})
+        workflow.add_conditional_edges(
+            "critic", route_critic, {"researcher": "researcher", END: END}
+        )
 
         compiled_graph = workflow.compile()
         protected_graph = cb.wrap(compiled_graph)
 
-        result = protected_graph.invoke({
-            "notes": "",
-            "feedback": "",
-            "circuit_breaker_triggered": False,
-            "circuit_breaker_source": "",
-        })
+        result = protected_graph.invoke(
+            {
+                "notes": "",
+                "feedback": "",
+                "circuit_breaker_triggered": False,
+                "circuit_breaker_source": "",
+            }
+        )
 
         assert result.get("circuit_breaker_triggered") is True
         assert result.get("circuit_breaker_source") == "researcher"
