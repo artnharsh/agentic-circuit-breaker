@@ -27,11 +27,12 @@ The node uses a closure over InterceptorContext to access:
 from __future__ import annotations
 
 import logging
-from typing import Callable, TYPE_CHECKING
+from collections.abc import Callable
+from typing import TYPE_CHECKING
 
 from engine.agentic_graph.state import AgentState
 from engine.heuristic_engine.similarity import get_recent_similarity
-from engine.heuristic_engine.state_machine import BreakerState, CircuitBreakerStateMachine
+from engine.heuristic_engine.state_machine import BreakerState
 from engine.heuristic_engine.verifier import HalfOpenVerifier
 
 if TYPE_CHECKING:
@@ -42,7 +43,7 @@ logger = logging.getLogger(__name__)
 _verifier = HalfOpenVerifier()
 
 
-def make_breaker_check_node(ctx: "InterceptorContext") -> Callable[[AgentState], dict]:
+def make_breaker_check_node(ctx: InterceptorContext) -> Callable[[AgentState], dict]:
     """
     Factory that creates the breaker_check node, closed over InterceptorContext.
 
@@ -130,6 +131,7 @@ def make_breaker_check_node(ctx: "InterceptorContext") -> Callable[[AgentState],
 
             return {
                 "circuit_breaker_triggered": True,
+                "circuit_breaker_source": "researcher",
                 "iteration_count": iteration,
             }
 
@@ -139,6 +141,7 @@ def make_breaker_check_node(ctx: "InterceptorContext") -> Callable[[AgentState],
 
         return {
             "circuit_breaker_triggered": False,
+            "circuit_breaker_source": None,
             "iteration_count": iteration,
         }
 

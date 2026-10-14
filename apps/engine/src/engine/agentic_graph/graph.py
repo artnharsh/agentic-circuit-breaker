@@ -29,7 +29,7 @@ Day 3 mode (with interceptor_ctx):
 from __future__ import annotations
 
 import logging
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from langgraph.graph import END, START, StateGraph
 
@@ -58,7 +58,7 @@ def _passthrough_breaker_routing(state: AgentState) -> str:
     return "researcher"
 
 
-def build_graph(interceptor_ctx: Optional["InterceptorContext"] = None, use_circuit_breaker: bool = False):
+def build_graph(interceptor_ctx: InterceptorContext | None = None, use_circuit_breaker: bool = False):
     """
     Build and compile the pipeline StateGraph.
 
@@ -79,10 +79,11 @@ def build_graph(interceptor_ctx: Optional["InterceptorContext"] = None, use_circ
 
     # ── Optionally wrap nodes with interceptor hooks ──────────────────────────
     if interceptor_ctx is not None:
-        from engine.interceptor.hooks import wrap_node
         from engine.agentic_graph.nodes.breaker_check import (
-            make_breaker_check_node, breaker_routing
+            breaker_routing,
+            make_breaker_check_node,
         )
+        from engine.interceptor.hooks import wrap_node
 
         _researcher = wrap_node(researcher_node, "researcher", interceptor_ctx)
         _critic = wrap_node(critic_node, "critic", interceptor_ctx)

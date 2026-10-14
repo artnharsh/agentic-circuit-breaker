@@ -2,9 +2,8 @@
 
 from __future__ import annotations
 
-from enum import Enum
-from typing import Optional
 import uuid
+from enum import Enum
 
 from pydantic import BaseModel, Field
 
@@ -41,11 +40,11 @@ class RunResponse(BaseModel):
     run_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     status: RunStatus
     query: str
-    output: Optional[str] = Field(
+    output: str | None = Field(
         default=None,
         description="The final answer (only present when status=completed or breaker_triggered).",
     )
-    error: Optional[str] = Field(
+    error: str | None = Field(
         default=None,
         description="Error message (only present when status=crashed).",
     )
@@ -57,7 +56,11 @@ class RunResponse(BaseModel):
         default=False,
         description="True if the circuit breaker fired during this run.",
     )
-    tokens_used: Optional[int] = Field(
+    circuit_breaker_source: str | None = Field(
+        default=None,
+        description="Name of the node that triggered the breaker (e.g. 'researcher').",
+    )
+    tokens_used: int | None = Field(
         default=None,
         description="Total tokens consumed (prompt + completion). Populated from Day 2.",
     )

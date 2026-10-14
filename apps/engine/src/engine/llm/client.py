@@ -15,14 +15,13 @@ Usage:
 from __future__ import annotations
 
 from functools import lru_cache
-from typing import Any, Optional
+from typing import Any
 
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import AIMessage, BaseMessage
 from langchain_core.outputs import ChatGeneration, ChatResult
 
 from engine.config import get_settings
-
 
 # ── Adversarial query signals (queries the mock will treat as unanswerable) ────
 # These phrases indicate hyper-specific data that the corpus cannot supply.
@@ -168,8 +167,8 @@ class MockChatModel(BaseChatModel):
     def _generate(
         self,
         messages: list[BaseMessage],
-        stop: Optional[list[str]] = None,
-        run_manager: Optional[Any] = None,
+        stop: list[str] | None = None,
+        run_manager: Any | None = None,
         **kwargs: Any,
     ) -> ChatResult:
         content = self._pick_response(messages)

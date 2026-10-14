@@ -13,10 +13,10 @@ This module is the bridge between:
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from engine.storage.models import IterationLog, Run
 
@@ -88,7 +88,7 @@ class LogStore:
             breaker_state=breaker_state,
             input_text=input_text[:500] if input_text else None,
             output_text=output_text[:500] if output_text else None,
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
         )
         if embedding is not None:
             log.set_embedding(embedding)

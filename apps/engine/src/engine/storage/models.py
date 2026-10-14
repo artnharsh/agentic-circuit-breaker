@@ -15,13 +15,12 @@ the Heuristic Engine (Day 3) to compute cosine similarity over the sliding windo
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy import (
     Boolean,
     Column,
     DateTime,
-    Float,
     Integer,
     String,
     Text,
@@ -30,7 +29,7 @@ from sqlalchemy.orm import DeclarativeBase
 
 
 def _utcnow() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 class Base(DeclarativeBase):

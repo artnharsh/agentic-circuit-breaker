@@ -1,5 +1,5 @@
 [tool.uv.workspace]
-members = ["apps/engine"]
+members = ["apps/engine", "packages/agentic-circuit-breaker"]
 
 [tool.uv]
 dev-dependencies = [

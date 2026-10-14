@@ -23,9 +23,9 @@ Architecture (Day 2):
 from __future__ import annotations
 
 import logging
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from typing import Callable
+from datetime import UTC, datetime
 
 from engine.agentic_graph.state import AgentState
 from engine.heuristic_engine.state_machine import CircuitBreakerStateMachine
@@ -145,7 +145,7 @@ def wrap_node(node_fn: NodeFn, node_name: str, ctx: InterceptorContext) -> NodeF
             breaker_state=None,  # Populated from Day 3
             input_text=input_text[:500],
             output_text=output_text[:500],
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
         ))
 
         logger.info(
@@ -229,8 +229,6 @@ def _get_input_text(node_name: str, state: AgentState) -> str:
     """Extract the relevant input text for a node."""
     if node_name == "researcher":
         return state.get("query", "")
-    elif node_name == "critic":
-        return state.get("research_notes", "")[:500]
-    elif node_name == "writer":
+    elif node_name == "critic" or node_name == "writer":
         return state.get("research_notes", "")[:500]
     return ""

@@ -1,6 +1,8 @@
 import asyncio
+
 from engine.heuristic_engine.similarity import compute_cosine_similarity
 from engine.interceptor.embeddings import EmbeddingService
+
 
 async def main():
     service = EmbeddingService()

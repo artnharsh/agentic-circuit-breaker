@@ -10,7 +10,6 @@ Tests:
 
 from __future__ import annotations
 
-import asyncio
 import uuid
 from pathlib import Path
 
@@ -22,7 +21,6 @@ from engine.heuristic_engine.similarity import (
     get_recent_similarity,
 )
 from engine.heuristic_engine.state_machine import BreakerState, CircuitBreakerStateMachine
-
 
 # ── Cosine similarity tests ────────────────────────────────────────────────────
 
@@ -143,11 +141,11 @@ async def test_adversarial_query_triggers_circuit_breaker():
     Adversarial query → circuit breaker fires → graceful partial answer
     (NOT a GraphRecursionError crash).
     """
-    from engine.storage.db import init_db, get_session_factory
-    from engine.interceptor.hooks import InterceptorContext, flush_pending_logs
-    from engine.interceptor.log_store import LogStore
     from engine.agentic_graph.graph import build_graph
     from engine.agentic_graph.state import AgentState
+    from engine.interceptor.hooks import InterceptorContext, flush_pending_logs
+    from engine.interceptor.log_store import LogStore
+    from engine.storage.db import get_session_factory, init_db
 
     await init_db()
 
@@ -197,11 +195,11 @@ async def test_adversarial_query_triggers_circuit_breaker():
 @pytest.mark.asyncio
 async def test_normal_query_does_not_trigger_breaker():
     """Normal queries must complete without triggering the circuit breaker."""
-    from engine.storage.db import init_db, get_session_factory
-    from engine.interceptor.hooks import InterceptorContext, flush_pending_logs
-    from engine.interceptor.log_store import LogStore
     from engine.agentic_graph.graph import build_graph
     from engine.agentic_graph.state import AgentState
+    from engine.interceptor.hooks import InterceptorContext, flush_pending_logs
+    from engine.interceptor.log_store import LogStore
+    from engine.storage.db import get_session_factory, init_db
 
     await init_db()
 

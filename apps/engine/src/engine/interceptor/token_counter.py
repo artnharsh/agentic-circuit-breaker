@@ -2,53 +2,17 @@
 Middleware Interceptor — token_counter.py
 
 Extracts the actual billed token counts from LLM API responses.
-
-IMPORTANT distinction (from PLAN.md Section 5):
-  A. Billed tokens  → read from response.usage (THIS module)
-  B. Pre-call estimates → tokenizer.py (tiktoken / Anthropic SDK)
-
-Only the numbers from THIS module belong in your cost-savings math.
-The embedding model has its own separate tokenizer — do not mix them.
-
-Supported providers:
-  - OpenAI / LangChain ChatOpenAI  → response.usage_metadata (via LangChain)
-  - Anthropic / LangChain ChatAnthropic → response.usage_metadata
-  - MockChatModel → uses usage_metadata set by the mock itself
+Uses TokenUsage from the agentic_circuit_breaker library.
 """
 
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass
-from typing import Any
 
+from agentic_circuit_breaker.types import ZERO_USAGE, TokenUsage
 from langchain_core.messages import AIMessage
 
 logger = logging.getLogger(__name__)
-
-
-@dataclass
-class TokenUsage:
-    """Token counts extracted from a single LLM API response."""
-
-    prompt_tokens: int = 0
-    """Tokens in the input/prompt (what you send to the LLM)."""
-
-    completion_tokens: int = 0
-    """Tokens in the output/completion (what the LLM returns)."""
-
-    @property
-    def total_tokens(self) -> int:
-        return self.prompt_tokens + self.completion_tokens
-
-    def __add__(self, other: "TokenUsage") -> "TokenUsage":
-        return TokenUsage(
-            prompt_tokens=self.prompt_tokens + other.prompt_tokens,
-            completion_tokens=self.completion_tokens + other.completion_tokens,
-        )
-
-
-ZERO_USAGE = TokenUsage(0, 0)
 
 
 def extract_token_usage(response: AIMessage) -> TokenUsage:
@@ -106,3 +70,6 @@ def sum_token_usages(usages: list[TokenUsage]) -> TokenUsage:
     for u in usages:
         result = result + u
     return result
+
+
+__all__ = ["ZERO_USAGE", "TokenUsage", "extract_token_usage", "sum_token_usages"]

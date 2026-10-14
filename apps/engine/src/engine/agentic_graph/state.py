@@ -9,11 +9,11 @@ Fields are additive — each node only writes its own output fields.
 
 from __future__ import annotations
 
-from typing import Annotated, Optional
-from typing_extensions import TypedDict
+from typing import Annotated
 
 from langchain_core.messages import BaseMessage
 from langgraph.graph.message import add_messages
+from typing_extensions import TypedDict
 
 
 class AgentState(TypedDict):
@@ -65,8 +65,14 @@ class AgentState(TypedDict):
 
     circuit_breaker_triggered: bool
     """
-    Set to True by the intervention layer (Day 4+) when the breaker fires.
+    Set to True by the intervention layer when the breaker fires.
     False by default.
+    """
+
+    circuit_breaker_source: str | None
+    """
+    Name of the agent node that triggered the breaker (e.g. 'researcher').
+    None if not triggered.
     """
 
     # ── LangGraph messages channel ────────────────────────────────────────────

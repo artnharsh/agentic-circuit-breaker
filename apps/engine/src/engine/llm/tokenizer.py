@@ -37,7 +37,6 @@ def count_tokens(text: str) -> int:
 def _count_openai_tokens(text: str, model: str) -> int:
     """Use tiktoken for exact OpenAI token counts."""
     try:
-        import tiktoken
         enc = _get_tiktoken_encoder(model)
         return len(enc.encode(text))
     except Exception:

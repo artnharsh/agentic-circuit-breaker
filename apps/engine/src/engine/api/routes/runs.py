@@ -11,7 +11,6 @@ Day 2 update:
 
 from __future__ import annotations
 
-import asyncio
 import logging
 import uuid
 from pathlib import Path
@@ -110,6 +109,7 @@ async def create_run(request: RunRequest) -> RunResponse:
         "final_output": "",
         "iteration_count": 0,
         "circuit_breaker_triggered": False,
+        "circuit_breaker_source": None,
         "messages": [],
     }
 
@@ -137,6 +137,7 @@ async def create_run(request: RunRequest) -> RunResponse:
             iterations = final_state.get("iteration_count", 0)
             output = final_state.get("final_output", "")
             breaker_triggered = final_state.get("circuit_breaker_triggered", False)
+            breaker_source = final_state.get("circuit_breaker_source")
 
             status = (
                 RunStatus.BREAKER_TRIGGERED if breaker_triggered
@@ -164,6 +165,7 @@ async def create_run(request: RunRequest) -> RunResponse:
                 output=output or None,
                 iterations=iterations,
                 circuit_breaker_triggered=breaker_triggered,
+                circuit_breaker_source=breaker_source,
                 tokens_used=ctx.token_accumulator.total_tokens or None,
             )
 

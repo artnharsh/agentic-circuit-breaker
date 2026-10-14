@@ -10,17 +10,15 @@ Tests:
 
 from __future__ import annotations
 
-import asyncio
 import uuid
 from pathlib import Path
 
-import pytest
 import numpy as np
+import pytest
+from langchain_core.messages import AIMessage
 
 from engine.interceptor.embeddings import EmbeddingService
 from engine.interceptor.token_counter import TokenUsage, extract_token_usage
-from langchain_core.messages import AIMessage
-
 
 # ── Embedding tests ────────────────────────────────────────────────────────────
 
@@ -99,13 +97,14 @@ async def test_intercepted_run_writes_db_rows():
     Full integration: run the intercepted graph and verify IterationLog rows
     are written to SQLite with embeddings.
     """
-    from engine.storage.db import init_db, get_session_factory
-    from engine.storage.models import IterationLog, Run
-    from engine.interceptor.log_store import LogStore
-    from engine.interceptor.hooks import InterceptorContext, flush_pending_logs
+    from sqlalchemy import select
+
     from engine.agentic_graph.graph import build_graph
     from engine.agentic_graph.state import AgentState
-    from sqlalchemy import select
+    from engine.interceptor.hooks import InterceptorContext, flush_pending_logs
+    from engine.interceptor.log_store import LogStore
+    from engine.storage.db import get_session_factory, init_db
+    from engine.storage.models import IterationLog, Run
 
     await init_db()
 
